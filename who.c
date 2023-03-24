@@ -1,18 +1,61 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <sys/types.h>
 #include <utmpx.h>
+#include <pwd.h>
+#include <grp.h>
 
-#define n 16 /* max amount of users to display */
+#define MAX_GROUPS 16 /* max amount of groups to display */
 
 int main(int argc, char *argv[]) {
   struct utmpx * utp;
-  gid_t * groups = malloc(n*sizeof(gid_t));
+  struct passwd * pw;
+  struct group * gr;
+
+  int ngroups = MAX_GROUPS;
+  gid_t * groups = malloc(MAX_GROUPS*sizeof(gid_t));
+  
+  int arg;
+  bool flag_h = false;
+  bool flag_g = false;
+
+  /* parse options from program call */
+  while((arg = getopt(argc, argv, "hg")) != -1) {
+    switch (arg) {
+      case 'h':
+        flag_h = true;
+        break;
+      case 'g':
+        flag_g = true;
+        break;
+      default:
+        break;
+    }
+  }
 
   setutxent();
   while ((utp = getutxent()) != NULL) {
     if (utp->ut_type == USER_PROCESS) {
-      printf("%s\n", utp->ut_user);
+
+      /* prints logged in username */
+      printf("%s  ", utp->ut_user);
+
+      /* if true prints logged in user host*/
+      if (flag_h) {
+        printf("%s  ", utp->ut_host);
+      }
+
+      /* if true prints logged in user groups*/
+      if (flag_g) {
+        pw = getpwnam(utp->ut_user);
+		    getgrouplist(utp->ut_user, pw->pw_gid, groups, &ngroups);
+		    for(int i = 0; i < ngroups; i++) {
+			  	gr = getgrgid(groups[i]);
+			  	printf("%s ", gr->gr_name);
+				}
+      }
+      printf("\n");
     }
   }
   endutxent();
