@@ -13,7 +13,7 @@ int main(int argc, char *argv[]) {
   struct passwd * pw;
   struct group * gr;
 
-  int ngroups = MAX_GROUPS;
+  int groups_amount = MAX_GROUPS;
   gid_t * groups = malloc(MAX_GROUPS*sizeof(gid_t));
   
   int arg;
@@ -49,11 +49,11 @@ int main(int argc, char *argv[]) {
       /* if true prints logged in user groups*/
       if (flag_g) {
         pw = getpwnam(utp->ut_user);
-		    getgrouplist(utp->ut_user, pw->pw_gid, groups, &ngroups);
-		    for(int i = 0; i < ngroups; i++) {
-			  	gr = getgrgid(groups[i]);
-			  	printf("%s ", gr->gr_name);
-				}
+        getgrouplist(utp->ut_user, pw->pw_gid, groups, &groups_amount);
+        for(int i = 0; i < groups_amount; i++) {
+          gr = getgrgid(groups[i]);
+        printf("%s ", gr->gr_name);
+        }
       }
       printf("\n");
     }
