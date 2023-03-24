@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         getgrouplist(utp->ut_user, pw->pw_gid, groups, &groups_amount);
         for(int i = 0; i < groups_amount; i++) {
           gr = getgrgid(groups[i]);
-        printf("%s ", gr->gr_name);
+          printf("%s ", gr->gr_name);
         }
       }
       printf("\n");
